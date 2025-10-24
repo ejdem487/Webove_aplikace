@@ -1,0 +1,20 @@
+
+{% extends 'base.html' %}
+{% block title %}Projekty{% endblock %}
+{% block content %}
+<h1>Projekty</h1>
+<p><a class="btn" href="/projects/new">+ Nový projekt</a></p>
+<table class="table">
+  <thead><tr><th>Název</th><th>Vlastník</th></tr></thead>
+  <tbody>
+    {% for p in projects %}
+      <tr>
+        <td><a href="/projects/{{p.id}}">{{ p.name }}</a></td>
+        <td>{{ p.owner.full_name or p.owner.email }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="2">Žádné projekty</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

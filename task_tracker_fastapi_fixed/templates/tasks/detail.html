@@ -1,0 +1,30 @@
+
+{% extends 'base.html' %}
+{% block title %}Úkol {{ task.title }}{% endblock %}
+{% block content %}
+<h1>{{ task.title }}</h1>
+<p>{{ task.description }}</p>
+<p><strong>Stav:</strong> {{ task.status }} | <strong>Priorita:</strong> {{ task.priority }}</p>
+<form method="post" action="/tasks/{{task.id}}/status" class="form inline">
+  <label>Změnit stav
+    <select name="status_value">
+      <option {% if task.status=='TODO' %}selected{% endif %}>TODO</option>
+      <option {% if task.status=='IN_PROGRESS' %}selected{% endif %}>IN_PROGRESS</option>
+      <option {% if task.status=='DONE' %}selected{% endif %}>DONE</option>
+    </select>
+  </label>
+  <button type="submit">Uložit</button>
+</form>
+<h2>Komentáře</h2>
+<ul class="comments">
+  {% for c in task.comments %}
+    <li><strong>{{ c.author.full_name or c.author.email }}</strong> — {{ c.created_at }}<br>{{ c.body }}</li>
+  {% else %}
+    <li>Žádné komentáře</li>
+  {% endfor %}
+</ul>
+<form method="post" action="/tasks/{{task.id}}/comment" class="form">
+  <label>Přidat komentář <textarea name="body" required></textarea></label>
+  <button type="submit">Odeslat</button>
+</form>
+{% endblock %}

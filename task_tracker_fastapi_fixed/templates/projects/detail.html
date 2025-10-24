@@ -1,0 +1,56 @@
+
+{% extends 'base.html' %}
+{% block title %}Projekt {{ project.name }}{% endblock %}
+{% block content %}
+<h1>Projekt: {{ project.name }}</h1>
+<p>{{ project.description }}</p>
+<h2>Členové</h2>
+<ul>
+  {% for m in members %}
+    <li>{{ m.user.full_name or m.user.email }}</li>
+  {% endfor %}
+</ul>
+<form method="post" action="/projects/{{project.id}}/members" class="form inline">
+  <label>Přidat člena
+    <select name="user_id">
+      {% for u in users %}
+        <option value="{{u.id}}">{{u.full_name or u.email}} ({{u.role}})</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Přidat</button>
+</form>
+<h2>Úkoly</h2>
+<table class="table">
+  <thead><tr><th>Titulek</th><th>Stav</th><th>Priorita</th><th>Přiřazeno</th></tr></thead>
+  <tbody>
+  {% for t in tasks %}
+    <tr>
+      <td><a href="/tasks/{{t.id}}">{{ t.title }}</a></td>
+      <td>{{ t.status }}</td>
+      <td>{{ t.priority }}</td>
+      <td>{{ t.assignee.full_name if t.assignee else "-" }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4">Žádné úkoly</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<h3>Nový úkol</h3>
+<form method="post" action="/projects/{{project.id}}/tasks" class="form">
+  <label>Titulek <input name="title" required></label>
+  <label>Popis <textarea name="description"></textarea></label>
+  <label>Priorita
+    <select name="priority">
+      <option>LOW</option><option selected>MEDIUM</option><option>HIGH</option>
+    </select>
+  </label>
+  <label>Přiřadit
+    <select name="assignee_id">
+      <option value="">-- nikomu --</option>
+      {% for u in users %}<option value="{{u.id}}">{{u.full_name or u.email}}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit">Přidat úkol</button>
+</form>
+{% endblock %}
