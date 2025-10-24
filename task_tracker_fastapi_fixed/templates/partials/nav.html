@@ -1,13 +1,14 @@
-
 <nav class="nav">
   <a href="/" class="brand">Tasks</a>
   <a href="/projects">Projekty</a>
-  {% if request.session.get('user_id') %}
+  {% set role = request.session.get('role') %}
+  {% if role == 'ADMIN' %}
     <a href="/admin/users">Admin</a>
-    <span class="spacer"></span>
+  {% endif %}
+  <span class="spacer"></span>
+  {% if request.session.get('user_id') %}
     <a href="/auth/logout">Odhlásit</a>
   {% else %}
-    <span class="spacer"></span>
     <a href="/auth/login">Přihlásit</a>
     <a href="/auth/register">Registrovat</a>
   {% endif %}

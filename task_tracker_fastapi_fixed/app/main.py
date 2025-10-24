@@ -44,3 +44,11 @@ def index(request: Request, db: Session = Depends(get_db)):
     projects = db.query(Project).join(ProjectMember).filter(ProjectMember.user_id == my_id).all()
     tasks = db.query(Task).filter((Task.assignee_id == my_id)).order_by(Task.updated_at.desc()).limit(10).all()
     return templates.TemplateResponse("index.html", {"request": request, "projects": projects, "tasks": tasks})
+
+@app.exception_handler(401)
+async def unauthorized(request, exc):
+    return templates.TemplateResponse("errors/401.html", {"request": request}, status_code=401)
+
+@app.exception_handler(403)
+async def forbidden(request, exc):
+    return templates.TemplateResponse("errors/403.html", {"request": request}, status_code=403)

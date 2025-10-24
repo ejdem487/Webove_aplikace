@@ -3,7 +3,9 @@
 {% block title %}Projekty{% endblock %}
 {% block content %}
 <h1>Projekty</h1>
-<p><a class="btn" href="/projects/new">+ Nový projekt</a></p>
+{% if request.session.get('role') in ['ADMIN','MANAGER'] %}
+  <p><a class="btn" href="/projects/new">+ Nový projekt</a></p>
+{% endif %}
 <table class="table">
   <thead><tr><th>Název</th><th>Vlastník</th></tr></thead>
   <tbody>

@@ -15,10 +15,12 @@ def list_users(request: Request, db: Session = Depends(get_db)):
     users = db.query(User).all()
     return templates.TemplateResponse("admin/users.html", {"request": request, "users": users})
 
-@router.post("/users/{user_id}/role", response_class=HTMLResponse, dependencies=[Depends(role_required("ADMIN"))])
-def change_role(user_id: int, role: str = Form(...), db: Session = Depends(get_db)):
+@router.post("/users/{user_id}/role", dependencies=[Depends(role_required("ADMIN"))])
+def change_role(user_id: int, role: str = Form(...), db: Session = Depends(get_db), request: Request = None):
     user = db.get(User, user_id)
     if user:
         user.role = role
         db.commit()
+        if request and request.session.get("user_id") == user.id:
+            request.session["role"] = role
     return RedirectResponse(url="/admin/users", status_code=303)

@@ -34,6 +34,7 @@ def register(request: Request, email: str = Form(...), password: str = Form(...)
     user = User(email=email, password_hash=bcrypt.hash(password), full_name=full_name, role="USER")
     db.add(user); db.commit()
     request.session["user_id"] = user.id
+    request.session["role"] = user.role
     return RedirectResponse(url="/", status_code=303)
 
 @router.get("/logout")
