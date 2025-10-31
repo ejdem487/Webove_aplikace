@@ -6,29 +6,16 @@
   <p><a class="btn" href="/projects/new">+ Nový projekt</a></p>
 {% endif %}
 
-<form method="get" class="form inline" action="/projects">
-  <label>Zobrazit archivované
-    <select name="show_archived">
-      <option value="">Ne</option>
-      <option value="1" {% if request.query_params.get('show_archived')=='1' %}selected{% endif %}>Ano</option>
-    </select>
-  </label>
-  <button type="submit">Filtrovat</button>
-</form>
-
 <table class="table">
-  <thead><tr><th>Název</th><th>Vlastník</th><th>Archiv</th></tr></thead>
+  <thead><tr><th>Název</th><th>Vlastník</th></tr></thead>
   <tbody>
     {% for p in projects %}
-      {% if request.query_params.get('show_archived')=='1' or not p.archived %}
       <tr>
         <td><a href="/projects/{{p.id}}">{{ p.name }}</a></td>
         <td>{{ p.owner.full_name or p.owner.email }}</td>
-        <td>{{ 'Ano' if p.archived else 'Ne' }}</td>
       </tr>
-      {% endif %}
     {% else %}
-      <tr><td colspan="3">Žádné projekty</td></tr>
+      <tr><td colspan="2">Žádné projekty</td></tr>
     {% endfor %}
   </tbody>
 </table>

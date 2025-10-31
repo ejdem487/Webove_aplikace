@@ -18,7 +18,8 @@ templates = Jinja2Templates(directory="templates")
 @router.get("", response_class=HTMLResponse)
 def list_projects(request: Request, db: Session = Depends(get_db), user: User = Depends(current_user)):
     projects = db.query(Project).join(ProjectMember, isouter=True).filter(
-        (Project.owner_id == user.id) | (ProjectMember.user_id == user.id)
+        (Project.owner_id == user.id) | (ProjectMember.user_id == user.id),
+        Project.archived == False
     ).distinct().all()
     return templates.TemplateResponse("projects/list.html", {"request": request, "projects": projects, "user": user})
 
