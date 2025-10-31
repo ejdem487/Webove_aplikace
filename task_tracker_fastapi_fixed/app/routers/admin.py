@@ -24,3 +24,18 @@ def change_role(user_id: int, role: str = Form(...), db: Session = Depends(get_d
         if request and request.session.get("user_id") == user.id:
             request.session["role"] = role
     return RedirectResponse(url="/admin/users", status_code=303)
+
+
+@router.post("/users/create", dependencies=[Depends(role_required("ADMIN"))])
+def create_user(email: str = Form(...), full_name: str = Form(""), password: str = Form(...), role: str = Form("USER"), db: Session = Depends(get_db)):
+    from passlib.hash import pbkdf2_sha256
+    u = User(email=email, full_name=full_name, role=role, password_hash=pbkdf2_sha256.hash(password))
+    db.add(u); db.commit()
+    return RedirectResponse(url="/admin/users", status_code=303)
+
+@router.post("/users/{user_id}/delete", dependencies=[Depends(role_required("ADMIN"))])
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    u = db.get(User, user_id)
+    if u:
+        db.delete(u); db.commit()
+    return RedirectResponse(url="/admin/users", status_code=303)

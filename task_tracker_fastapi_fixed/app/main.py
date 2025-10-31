@@ -8,10 +8,16 @@ from sqlalchemy.orm import Session
 from .db import Base, engine, get_db
 from .models import User, Project, ProjectMember, Task
 from .auth import router as auth_router
-from .routers import projects as projects_router
 from .routers import admin as admin_router
+from .routers import projects as projects_router
 from .routers import tasks as tasks_router
+from .routers import user as user_router
 from passlib.hash import bcrypt
+
+
+
+
+
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="CHANGE_ME_secret_for_sessions", same_site="lax")
@@ -35,6 +41,8 @@ app.include_router(auth_router, prefix="/auth")
 app.include_router(projects_router.router, prefix="/projects")
 app.include_router(admin_router.router, prefix="/admin")
 app.include_router(tasks_router.router, prefix="/tasks")
+app.include_router(user_router.router, prefix="/user")
+
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request, db: Session = Depends(get_db)):

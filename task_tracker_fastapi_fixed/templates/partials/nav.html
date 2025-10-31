@@ -7,6 +7,8 @@
   {% endif %}
   <span class="spacer"></span>
   {% if request.session.get('user_id') %}
+    <a href="/user/profile">Profil</a>
+    <span class="muted">Přihlášen: {{ role or 'USER' }}</span>
     <a href="/auth/logout">Odhlásit</a>
   {% else %}
     <a href="/auth/login">Přihlásit</a>

@@ -20,6 +20,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...), d
     if not user or not bcrypt.verify(password, user.password_hash):
         return templates.TemplateResponse("auth/login.html", {"request": request, "error": "Neplatné přihlašovací údaje."}, status_code=400)
     request.session["user_id"] = user.id
+    request.session["role"] = user.role
     return RedirectResponse(url="/", status_code=303)
 
 @router.get("/register", response_class=HTMLResponse)
