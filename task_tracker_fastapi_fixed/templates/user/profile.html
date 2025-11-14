@@ -1,16 +1,25 @@
 {% extends "base.html" %}
-
-{% block title %}User Profile{% endblock %}
-
+{% block title %}Profil{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h1>User Profile</h1>
+    <h1>Profil</h1>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">{{ user.full_name }}</h5>
-            <p class="card-text"><strong>Email:</strong> {{ user.email }}</p>
-            <p class="card-text"><strong>Role:</strong> {{ user.role }}</p>
+            <p><strong>Uživatelské jméno:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Role:</strong> {{ user.role_names | join(', ') if user.role_names else 'USER' }}</p>
         </div>
     </div>
+    <h2>Upravit uživatelské jméno</h2>
+    <form method="post" action="/user/profile" class="form">
+        <label>Nové jméno <input type="text" name="username" value="{{ user.username }}" required></label>
+        <button type="submit">Uložit</button>
+    </form>
+    <h2>Změna hesla</h2>
+    <form method="post" action="/user/password" class="form">
+        <label>Aktuální heslo <input type="password" name="old_password" required></label>
+        <label>Nové heslo <input type="password" name="new_password" required></label>
+        <button type="submit">Změnit heslo</button>
+    </form>
 </div>
 {% endblock %}

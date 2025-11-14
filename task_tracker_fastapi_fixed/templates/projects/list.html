@@ -11,8 +11,14 @@
   <tbody>
     {% for p in projects %}
       <tr>
-        <td><a href="/projects/{{p.id}}">{{ p.name }}</a></td>
-        <td>{{ p.owner.full_name or p.owner.email }}</td>
+        <td><a href="/projects/{{p.project_id}}">{{ p.name }}</a></td>
+        <td>
+          {% if p.owner %}
+            {{ p.owner.username or p.owner.email }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
       </tr>
     {% else %}
       <tr><td colspan="2">Žádné projekty</td></tr>

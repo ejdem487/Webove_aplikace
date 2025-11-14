@@ -1,56 +1,106 @@
-
 {% extends 'base.html' %}
 {% block title %}Projekt {{ project.name }}{% endblock %}
 {% block content %}
+{% set can_manage = can_manage %}
 <h1>Projekt: {{ project.name }}</h1>
 <p>{{ project.description }}</p>
-<h2>Členové</h2>
+<p><strong>Vytvořil:</strong> {{ project.owner.username if project.owner else 'Neznámý' }}{% if project.owner %} ({{ project.owner.email }}){% endif %}</p>
+
+<h2>Členové projektu</h2>
 <ul>
-  {% for m in members %}
-    <li>{{ m.user.full_name or m.user.email }}</li>
+  {% for member in project_members %}
+    <li>
+      {{ member.username or member.email }}
+      {% if can_manage and member.user_id != project.created_by %}
+        <form method="post" action="/projects/{{project.project_id}}/members/{{member.user_id}}/remove" class="form inline">
+          <button type="submit">Odebrat</button>
+        </form>
+      {% endif %}
+      {% if member.user_id == project.created_by %}<em>(vlastník)</em>{% endif %}
+    </li>
+  {% else %}
+    <li>Žádní členové</li>
   {% endfor %}
 </ul>
-<form method="post" action="/projects/{{project.id}}/members" class="form inline">
+{% if can_manage and available_users %}
+<form method="post" action="/projects/{{project.project_id}}/members" class="form inline">
   <label>Přidat člena
-    <select name="user_id">
-      {% for u in users %}
-        <option value="{{u.id}}">{{u.full_name or u.email}} ({{u.role}})</option>
+    <select name="user_id" required>
+      {% for u in available_users %}
+        <option value="{{u.user_id}}">{{ u.username or u.email }}</option>
       {% endfor %}
     </select>
   </label>
   <button type="submit">Přidat</button>
 </form>
+{% endif %}
+
 <h2>Úkoly</h2>
+<form method="get" class="form inline">
+  <label>Stav
+    <select name="status">
+      <option value="">Vše</option>
+      <option value="TODO" {% if request.query_params.get('status') == 'TODO' %}selected{% endif %}>TODO</option>
+      <option value="IN_PROGRESS" {% if request.query_params.get('status') == 'IN_PROGRESS' %}selected{% endif %}>IN_PROGRESS</option>
+      <option value="DONE" {% if request.query_params.get('status') == 'DONE' %}selected{% endif %}>DONE</option>
+    </select>
+  </label>
+  <label>Přiřazeno
+    <select name="assignee_id">
+      <option value="">Kdokoli</option>
+      {% for u in project_members %}
+        <option value="{{u.user_id}}" {% if request.query_params.get('assignee_id') == u.user_id|string %}selected{% endif %}>
+          {{ u.username or u.email }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Filtrovat</button>
+</form>
+
 <table class="table">
-  <thead><tr><th>Titulek</th><th>Stav</th><th>Priorita</th><th>Přiřazeno</th></tr></thead>
+  <thead><tr><th>Titulek</th><th>Stav</th><th>Přiřazeno</th>{% if can_manage %}<th>Akce</th>{% endif %}</tr></thead>
   <tbody>
   {% for t in tasks %}
     <tr>
-      <td><a href="/tasks/{{t.id}}">{{ t.title }}</a></td>
+      <td><a href="/tasks/{{t.task_id}}">{{ t.title }}</a></td>
       <td>{{ t.status }}</td>
-      <td>{{ t.priority }}</td>
-      <td>{{ t.assignee.full_name if t.assignee else "-" }}</td>
+      <td>{{ t.assignee.username if t.assignee else '-' }}</td>
+      {% if can_manage %}
+      <td>
+        <form method="post" action="/tasks/{{t.task_id}}/delete" class="form inline">
+          <button type="submit" onclick="return confirm('Opravdu smazat úkol?')">Smazat</button>
+        </form>
+      </td>
+      {% endif %}
     </tr>
   {% else %}
-    <tr><td colspan="4">Žádné úkoly</td></tr>
+    <tr><td colspan="{{ 4 if can_manage else 3 }}">Žádné úkoly</td></tr>
   {% endfor %}
   </tbody>
 </table>
+{% if can_manage %}
 <h3>Nový úkol</h3>
-<form method="post" action="/projects/{{project.id}}/tasks" class="form">
+<form method="post" action="/projects/{{project.project_id}}/tasks" class="form">
   <label>Titulek <input name="title" required></label>
   <label>Popis <textarea name="description"></textarea></label>
-  <label>Priorita
-    <select name="priority">
-      <option>LOW</option><option selected>MEDIUM</option><option>HIGH</option>
+  <label>Stav
+    <select name="status">
+      <option>TODO</option>
+      <option>IN_PROGRESS</option>
+      <option>DONE</option>
     </select>
   </label>
   <label>Přiřadit
     <select name="assignee_id">
       <option value="">-- nikomu --</option>
-      {% for u in users %}<option value="{{u.id}}">{{u.full_name or u.email}}</option>{% endfor %}
+      {% for u in project_members %}<option value="{{u.user_id}}">{{u.username or u.email}}</option>{% endfor %}
     </select>
   </label>
   <button type="submit">Přidat úkol</button>
 </form>
+<form method="post" action="/projects/{{project.project_id}}/delete" class="form">
+  <button type="submit" onclick="return confirm('Smazat celý projekt včetně úkolů?')">Smazat projekt</button>
+</form>
+{% endif %}
 {% endblock %}

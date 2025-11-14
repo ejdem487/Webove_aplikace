@@ -5,7 +5,7 @@ from typing import Optional
 class RegisterForm(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
-    full_name: str = ""
+    username: str = Field(min_length=3, max_length=60)
 
 class LoginForm(BaseModel):
     email: EmailStr
@@ -18,6 +18,5 @@ class ProjectCreate(BaseModel):
 class TaskCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str = ""
-    priority: str = "MEDIUM"
+    status: str = "TODO"
     assignee_id: Optional[int] = None
-    deadline: Optional[str] = None

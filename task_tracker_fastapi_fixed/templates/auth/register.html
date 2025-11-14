@@ -6,7 +6,7 @@
 {% if error %}<div class="alert">{{ error }}</div>{% endif %}
 <form method="post" class="form">
   <label>E-mail <input type="email" name="email" required></label>
-  <label>Jméno <input type="text" name="full_name"></label>
+  <label>Uživatelské jméno <input type="text" name="username" required></label>
   <label>Heslo <input type="password" name="password" required minlength="6"></label>
   <button type="submit">Vytvořit účet</button>
 </form>

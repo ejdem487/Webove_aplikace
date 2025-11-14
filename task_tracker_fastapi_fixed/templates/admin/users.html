@@ -1,29 +1,46 @@
-
 {% extends 'base.html' %}
 {% block title %}Uživatelé{% endblock %}
 {% block content %}
 <h1>Uživatelé</h1>
 <table class="table">
-  <thead><tr><th>ID</th><th>E-mail</th><th>Jméno</th><th>Role</th><th>Akce</th></tr></thead>
+  <thead><tr><th>ID</th><th>E-mail</th><th>Uživatelské jméno</th><th>Role</th><th>Akce</th></tr></thead>
   <tbody>
   {% for u in users %}
     <tr>
-      <td>{{u.id}}</td>
+      <td>{{u.user_id}}</td>
       <td>{{u.email}}</td>
-      <td>{{u.full_name}}</td>
-      <td>{{u.role}}</td>
+      <td>{{u.username}}</td>
+      <td>{{ u.role_names | join(', ') if u.role_names else 'USER' }}</td>
       <td>
-        <form method="post" action="/admin/users/{{u.id}}/role" class="form inline">
+        <form method="post" action="/admin/users/{{u.user_id}}/role" class="form inline">
           <select name="role">
-            <option {% if u.role=='USER' %}selected{% endif %}>USER</option>
-            <option {% if u.role=='MANAGER' %}selected{% endif %}>MANAGER</option>
-            <option {% if u.role=='ADMIN' %}selected{% endif %}>ADMIN</option>
+            {% for role in roles %}
+              <option value="{{role.role_name}}" {% if role.role_name in u.role_names %}selected{% endif %}>{{role.role_name}}</option>
+            {% endfor %}
           </select>
-          <button type="submit">Změnit</button>
+          <button type="submit">Nastavit</button>
+        </form>
+        <form method="post" action="/admin/users/{{u.user_id}}/delete" class="form inline">
+          <button type="submit" onclick="return confirm('Opravdu smazat tohoto uživatele?')">Smazat</button>
         </form>
       </td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
+
+<h2>Vytvořit nového uživatele</h2>
+<form method="post" action="/admin/users/create" class="form">
+  <label>E-mail <input type="email" name="email" required></label>
+  <label>Uživatelské jméno <input type="text" name="username" required></label>
+  <label>Heslo <input type="password" name="password" required></label>
+  <label>Role
+    <select name="role">
+      {% for role in roles %}
+        <option value="{{role.role_name}}">{{role.role_name}}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Vytvořit</button>
+</form>
 {% endblock %}

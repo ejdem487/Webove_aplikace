@@ -3,26 +3,14 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <h1>Dashboard</h1>
-<section class="grid">
-  <div class="card">
-    <h2>Moje projekty</h2>
-    <ul>
-      {% for p in projects %}
-        <li><a href="/projects/{{p.id}}">{{ p.name }}</a></li>
-      {% else %}
-        <li>Žádné projekty</li>
-      {% endfor %}
-    </ul>
-  </div>
-  <div class="card">
-    <h2>Moje poslední úkoly</h2>
-    <ul>
-      {% for t in tasks %}
-        <li><a href="/tasks/{{t.id}}">{{ t.title }}</a> — {{ t.status }}</li>
-      {% else %}
-        <li>Žádné úkoly</li>
-      {% endfor %}
-    </ul>
-  </div>
-</section>
+<div class="card">
+  <h2>Moje poslední úkoly</h2>
+  <ul>
+    {% for t in tasks %}
+      <li><a href="/tasks/{{t.task_id}}">{{ t.title }}</a> — {{ t.status }}</li>
+    {% else %}
+      <li>Žádné úkoly</li>
+    {% endfor %}
+  </ul>
+</div>
 {% endblock %}

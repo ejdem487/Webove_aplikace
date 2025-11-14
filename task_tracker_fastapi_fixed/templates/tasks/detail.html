@@ -1,11 +1,14 @@
-
 {% extends 'base.html' %}
 {% block title %}Úkol {{ task.title }}{% endblock %}
 {% block content %}
+{% set is_assignee = is_assignee %}
+{% set can_manage = can_manage %}
 <h1>{{ task.title }}</h1>
 <p>{{ task.description }}</p>
-<p><strong>Stav:</strong> {{ task.status }} | <strong>Priorita:</strong> {{ task.priority }}</p>
-<form method="post" action="/tasks/{{task.id}}/status" class="form inline">
+<p><strong>Stav:</strong> {{ task.status }}</p>
+<p><strong>Přiřazeno:</strong> {{ task.assignee.username if task.assignee else '-' }}</p>
+{% if is_assignee or can_manage %}
+<form method="post" action="/tasks/{{task.task_id}}/status" class="form inline">
   <label>Změnit stav
     <select name="status_value">
       <option {% if task.status=='TODO' %}selected{% endif %}>TODO</option>
@@ -15,16 +18,42 @@
   </label>
   <button type="submit">Uložit</button>
 </form>
+{% else %}
+<p><em>Jen přiřazený uživatel nebo manažer/admin může měnit stav.</em></p>
+{% endif %}
 <h2>Komentáře</h2>
 <ul class="comments">
   {% for c in task.comments %}
-    <li><strong>{{ c.author.full_name or c.author.email }}</strong> — {{ c.created_at }}<br>{{ c.body }}</li>
+    <li><strong>{{ c.author.username or c.author.email }}</strong><br>{{ c.text }}</li>
   {% else %}
     <li>Žádné komentáře</li>
   {% endfor %}
 </ul>
-<form method="post" action="/tasks/{{task.id}}/comment" class="form">
+{% if is_assignee or can_manage %}
+<form method="post" action="/tasks/{{task.task_id}}/comment" class="form">
   <label>Přidat komentář <textarea name="body" required></textarea></label>
   <button type="submit">Odeslat</button>
 </form>
+{% else %}
+<p><em>Jen přiřazený uživatel nebo manažer/admin může přidávat komentáře.</em></p>
+{% endif %}
+{% if can_manage %}
+<h2>Správa úkolu</h2>
+<form method="post" action="/tasks/{{task.task_id}}/assign" class="form inline">
+  <label>Přiřadit
+    <select name="assignee_id">
+      <option value="">-- nepřiřazeno --</option>
+      {% for member in project_members %}
+        <option value="{{member.user_id}}" {% if task.assigned_to_user_id == member.user_id %}selected{% endif %}>
+          {{ member.username or member.email }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Uložit</button>
+</form>
+<form method="post" action="/tasks/{{task.task_id}}/delete" class="form">
+  <button type="submit" onclick="return confirm('Opravdu smazat tento úkol?')">Smazat úkol</button>
+</form>
+{% endif %}
 {% endblock %}
